@@ -3,45 +3,35 @@ package fr.isen.ngnepiepaye.isensmartcompanion
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import fr.isen.ngnepiepaye.isensmartcompanion.ui.theme.ISENSmartCompanionTheme
-
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
-            ISENSmartCompanionTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+            val navController = rememberNavController()
+            MainActivityScreeen(navController) // ✅ Correction : Passe bien `navController`
         }
     }
 }
 
+// ✅ Fonction qui gère la navigation avec NavHost
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun AppNavigator() {
+    val navController = rememberNavController()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ISENSmartCompanionTheme {
-        Greeting("Android")
+    NavHost(navController = navController, startDestination = "main") {
+        composable("main") { MainActivityScreeen(navController) }
+        composable("events") { EventsScreen(navController) }
+        composable("history") { HistoryScreen() }
+
+        // ✅ Correction : Passage de l'événement en JSON pour EventDetailScreen
+        composable("event_details/{eventJson}") { backStackEntry ->
+            val eventJson = backStackEntry.arguments?.getString("eventJson")
+            println("📦 JSON reçu dans EventDetailScreen : $eventJson") // 🔍 Vérification
+            EventDetailScreen(navController, eventJson)
+        }
     }
 }
